@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FAILSAFE.md — The AI Agent Safe Fallback Standard</title>
-  <meta name="description" content="FAILSAFE.md is an open file convention for AI agent safe fallback and recovery protocols. Define what safe state means for your project, configure automatic snapshots, and specify exactly how the agent recovers when things go wrong.">
+  <meta name="description" content="FAILSAFE.md: AI agent recovery protocol. Define safe state, automatic snapshots, fallback triggers, data consistency checks, MTTR targets, recovery procedures.">
   <meta name="keywords" content="AI safety, AI agent recovery, FAILSAFE.md, AI fallback protocol, AI resilience, agentic AI safety, ISO/IEC 42001, EU AI Act compliance">
   <link rel="canonical" href="https://failsafe.md/">
 
   <!-- Open Graph -->
   <meta property="og:title" content="FAILSAFE.md — The AI Agent Safe Fallback Standard">
-  <meta property="og:description" content="An open file convention for AI agent safe fallback and recovery. Define safe state, auto-snapshots, and fallback triggers in one file.">
+  <meta property="og:description" content="FAILSAFE.md: AI agent recovery protocol. Define safe state, automatic snapshots, fallback triggers, data consistency checks, MTTR targets, recovery procedures.">
   <meta property="og:url" content="https://failsafe.md/">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
@@ -34,7 +35,7 @@
     "email": "info@failsafe.md",
     "description": "FAILSAFE.md is an open file convention for AI agent safe fallback and recovery protocols. It defines safe state, automatic snapshots, fallback triggers, and recovery steps for AI agent projects.",
     "knowsAbout": ["AI agent recovery", "safe fallback protocols", "AI resilience", "ISO 42001 compliance", "EU AI Act compliance", "FAILSAFE.md specification", "AI state management"],
-    "sameAs": ["https://github.com/failsafe-md/spec", "https://killswitch.md", "https://throttle.md", "https://escalate.md", "https://terminate.md", "https://encrypt.md", "https://encryption.md", "https://sycophancy.md", "https://compression.md", "https://collapse.md", "https://failure.md", "https://leaderboard.md"]
+    "sameAs": ["https://killswitch.md", "https://throttle.md", "https://escalate.md", "https://failsafe.md", "https://terminate.md", "https://encrypt.md", "https://encryption.md", "https://sycophancy.md", "https://compression.md", "https://collapse.md", "https://failure.md", "https://leaderboard.md", "https://github.com/failsafe-md/spec"]
   }
   </script>
 
@@ -53,7 +54,11 @@
       "name": "FAILSAFE.md",
       "url": "https://failsafe.md",
       "email": "info@failsafe.md"
-    },
+    ,
+    "knowsAbout": ["fault tolerance", "circuit breakers", "graceful degradation", "recovery mechanisms", "redundancy", "safety-critical systems", "error handling"]
+  ,
+    "sameAs": ["https://killswitch.md", "https://throttle.md", "https://escalate.md", "https://failsafe.md", "https://terminate.md", "https://encrypt.md", "https://encryption.md", "https://sycophancy.md", "https://compression.md", "https://collapse.md", "https://failure.md", "https://leaderboard.md", "https://github.com/failsafe-md/spec"]
+  },
     "about": {
       "@type": "Thing",
       "name": "AI Agent Recovery Protocol",
@@ -812,6 +817,7 @@
     </ul>
   </nav>
 
+  <main>
   <!-- HERO -->
   <section class="hero">
     <div class="hero-grid">
@@ -894,6 +900,7 @@
     </div>
   </div>
 
+  <article>
   <!-- WHAT IS -->
   <section class="section" id="what">
     <div class="section-inner">
@@ -904,21 +911,21 @@
           <p>
             <strong>FAILSAFE.md is a plain-text Markdown file</strong> you place in the root of any repository that contains an AI agent. It defines the safe fallback state your agent returns to when something unexpected happens — and how to capture the moment so a human can understand what went wrong.
           </p>
-          <h3>The problem it solves</h3>
+          <h3>What problem does FAILSAFE.md solve?</h3>
           <p>
             AI agents fail in unexpected ways — losing context mid-session, receiving contradictory instructions, encountering data inconsistencies, or experiencing sudden cost spikes. Without a defined recovery protocol, a confused agent either keeps going (making things worse) or stops with no way back.
           </p>
-          <h3>How it works</h3>
+          <h3>How does FAILSAFE.md work?</h3>
           <p>
             Drop <code style="font-family: var(--mono); font-size:13px; color: var(--green); background: var(--surface); padding: 2px 6px; border-radius: 3px;">FAILSAFE.md</code> in your repo root and define: what triggers a fallback (error counts, context loss, cost spikes), what "safe state" means for your project (last clean git commit, last verified data snapshot), how to capture the incident for review, and what a human must do before the agent can resume.
           </p>
-          <h3>The regulatory context</h3>
+          <h3>What regulations require FAILSAFE.md?</h3>
           <p>
             <strong><a href="https://www.iso.org/standard/81230.html" style="color: var(--blue); text-decoration: none; border-bottom: 1px solid rgba(41,121,255,0.3);">ISO/IEC 42001</a></strong> (AI Management Systems) requires documented recovery procedures. The <strong>EU AI Act</strong> mandates resilience and robustness for high-risk AI systems. FAILSAFE.md provides the documented recovery protocol both require — defining not just what fails, but how the agent finds its way back.
           </p>
         </div>
         <div class="prose">
-          <h3>How to use it</h3>
+          <h3>How do I add FAILSAFE.md to my project?</h3>
           <p>Copy the template from <a href="https://github.com/failsafe-md/spec" style="color: var(--blue); text-decoration: none; border-bottom: 1px solid rgba(41,121,255,0.3);">GitHub</a> and place it in your project root:</p>
           <div style="background: var(--surface); border: 1px solid var(--border-bright); border-radius: 6px; padding: 20px; margin: 16px 0; font-family: var(--mono); font-size: 12px; line-height: 1.8; color: var(--text-dim);">
             <span style="color: var(--text-dimmer);">your-project/</span><br>
@@ -928,11 +935,11 @@
             <span style="color: var(--text-dimmer);">├── README.md</span><br>
             <span style="color: var(--text-dimmer);">└── src/</span>
           </div>
-          <h3>What it replaces</h3>
+          <h3>What did teams use before FAILSAFE.md?</h3>
           <p>
             Before FAILSAFE.md, recovery procedures were ad-hoc: manual rollback steps in a wiki, undocumented assumptions about which snapshots to keep, or no plan at all. FAILSAFE.md makes recovery <strong>version-controlled, predictable, and co-located with your code.</strong>
           </p>
-          <h3>Who reads it</h3>
+          <h3>Who benefits from FAILSAFE.md?</h3>
           <p>
             The AI agent reads it on startup to learn how to recover. Your engineer reads it when planning fallback strategy. Your ops team reads it when deciding snapshot retention. Your auditor reads it to verify resilience requirements are met. One file serves all four audiences.
           </p>
@@ -1091,6 +1098,8 @@
   <div style="padding: 40px; text-align: center; border-top: 1px solid var(--border); background: var(--surface);">
     <p style="font-family: var(--mono); font-size: 11px; color: var(--text-dimmer); letter-spacing: 0.06em;">Last updated: 2026-03-13</p>
   </div>
+  </article>
+  </main>
 
   <!-- FOOTER -->
   <footer>
@@ -1099,6 +1108,7 @@
       <li><a href="https://github.com/failsafe-md/spec" target="_blank" rel="noopener">GitHub</a></li>
       <li><a href="/llms.txt">llms.txt</a></li>
       <li><a href="/knowledge">Knowledge</a></li>
+      <li><a href="/privacy">Privacy</a></li>
       <li><a href="mailto:info@failsafe.md">Contact</a></li>
     </ul>
     <div class="footer-note">Open standard · MIT licence · v1.0 · 2026</div>
