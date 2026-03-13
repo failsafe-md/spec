@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAILSAFE.md — The AI Agent Safe Fallback Standard</title>
+  <meta name="description" content="FAILSAFE.md is an open file convention for AI agent safe fallback and recovery protocols. Define what safe state means for your project, configure automatic snapshots, and specify exactly how the agent recovers when things go wrong.">
+  <meta name="keywords" content="AI safety, AI agent recovery, FAILSAFE.md, AI fallback protocol, AI resilience, agentic AI safety, ISO/IEC 42001, EU AI Act compliance">
+  <link rel="canonical" href="https://failsafe.md/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="FAILSAFE.md — The AI Agent Safe Fallback Standard">
+  <meta property="og:description" content="An open file convention for AI agent safe fallback and recovery. Define safe state, auto-snapshots, and fallback triggers in one file.">
+  <meta property="og:url" content="https://failsafe.md/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://failsafe.md/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FAILSAFE.md — The AI Agent Safe Fallback Standard">
+  <meta name="twitter:description" content="An open file convention for AI agent safe fallback and recovery. Define safe state, auto-snapshots, and fallback triggers in one file.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Schema Markup -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "FAILSAFE.md",
+    "url": "https://failsafe.md",
+    "email": "info@failsafe.md",
+    "description": "FAILSAFE.md is an open file convention for AI agent safe fallback and recovery protocols. It defines safe state, automatic snapshots, fallback triggers, and recovery steps for AI agent projects.",
+    "knowsAbout": ["AI agent recovery", "safe fallback protocols", "AI resilience", "ISO 42001 compliance", "EU AI Act compliance", "FAILSAFE.md specification", "AI state management"],
+    "sameAs": ["https://github.com/failsafe-md/spec", "https://killswitch.md", "https://encrypt.md", "https://escalate.md", "https://throttle.md", "https://terminate.md"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "FAILSAFE.md — The AI Agent Safe Fallback Standard",
+    "url": "https://failsafe.md",
+    "description": "An open file convention for defining AI agent safe fallback and recovery. Define safe state, auto-snapshots, and fallback triggers in one file.",
+    "inLanguage": "en",
+    "datePublished": "2026-03-10",
+    "dateModified": "2026-03-10",
+    "publisher": {
+      "@type": "Organization",
+      "name": "FAILSAFE.md",
+      "url": "https://failsafe.md",
+      "email": "info@failsafe.md"
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "AI Agent Recovery Protocol",
+      "description": "Open specification for AI agent safe fallback, resilience, and recovery procedures"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is FAILSAFE.md?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "FAILSAFE.md is a plain-text Markdown file defining what 'safe state' means for an AI agent project and how to reach it when something goes wrong. It configures automatic snapshots during normal operation, defines fallback triggers, and specifies the recovery steps including human notification and approval before resumption."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does FAILSAFE.md differ from KILLSWITCH.md?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "FAILSAFE.md is a recovery protocol — the agent falls back to a known good state and can resume after human review. KILLSWITCH.md is an emergency stop — the agent halts immediately. FAILSAFE.md handles unexpected failures; KILLSWITCH.md handles limit breaches and safety violations."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What triggers a failsafe?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Configurable. Common triggers: three unexpected errors in a session, detected data integrity failures, loss of memory context, contradictory instructions the agent can't resolve, unexpected external service failures, and sudden cost spikes (3x the rolling average by default)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does 'safe state' mean?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You define it per project. For code: the last clean git commit on the main branch, with in-progress work stashed. For data: the most recent verified snapshot, no older than 24 hours. For config: the last known-good configuration backup. FAILSAFE.md stores all of these definitions in one place."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do auto-snapshots work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Every 30 minutes during active sessions (configurable), the agent captures a full state snapshot to .failsafe/snapshots/. It also snapshots automatically before significant actions — database migrations, production deployments, bulk file operations. The last 10 snapshots are retained."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can the agent restart itself after a failsafe?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No — by default, restart requires human approval. The agent saves an incident report, notifies the operator, and waits. A human must review the incident, confirm the safe state is intact, and explicitly approve resumption. This is the key difference from an automatic retry."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --black: #080808;
+      --surface: #0f0f0f;
+      --surface2: #141414;
+      --border: #1e1e1e;
+      --border-bright: #2a2a2a;
+      --blue: #2979ff;
+      --blue-dim: #1a5fcc;
+      --blue-glow: rgba(41, 121, 255, 0.15);
+      --orange: #ff6b2b;
+      --green: #00e676;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --text-dimmer: #555;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ─── SCANLINE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,8,8,0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      font-family: var(--mono);
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-logo span { color: var(--blue); }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--blue) !important;
+      border: 1px solid var(--blue) !important;
+      padding: 7px 16px;
+      border-radius: 3px;
+      transition: background 0.2s !important;
+    }
+
+    .nav-cta:hover { background: var(--blue-glow) !important; color: var(--blue) !important; }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 120px 40px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      left: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(41,121,255,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--blue);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .hero-badge::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--blue);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .hero-title {
+      font-family: var(--mono);
+      font-size: clamp(42px, 6vw, 80px);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .hero-title .ext {
+      color: var(--blue);
+    }
+
+    .hero-subtitle {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-dimmer);
+      letter-spacing: 0.05em;
+      margin-bottom: 32px;
+    }
+
+    .hero-desc {
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 520px;
+      margin-bottom: 40px;
+    }
+
+    .hero-desc strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--blue);
+      padding: 14px 28px;
+      border-radius: 3px;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: background 0.2s, transform 0.1s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover { background: var(--blue-dim); transform: translateY(-1px); }
+
+    .btn-secondary {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-dim);
+      background: transparent;
+      padding: 14px 28px;
+      border-radius: 3px;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      border: 1px solid var(--border-bright);
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-secondary:hover { border-color: var(--text-dimmer); color: var(--text); }
+
+    /* ─── TERMINAL PREVIEW ─── */
+    .terminal {
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      overflow: hidden;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.7;
+      animation: terminal-appear 0.6s ease 0.2s both;
+    }
+
+    @keyframes terminal-appear {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .terminal-bar {
+      background: var(--surface2);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ff5f57; }
+    .dot-yellow { background: #febc2e; }
+    .dot-green { background: #28c840; }
+
+    .terminal-filename {
+      margin-left: 8px;
+      color: var(--text-dim);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+    }
+
+    .terminal-body {
+      padding: 20px 24px;
+      max-height: 440px;
+      overflow-y: auto;
+    }
+
+    .terminal-body::-webkit-scrollbar { width: 4px; }
+    .terminal-body::-webkit-scrollbar-track { background: transparent; }
+    .terminal-body::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+    .line { display: block; }
+    .c-comment { color: #555; }
+    .c-key { color: #79b8ff; }
+    .c-val { color: var(--green); }
+    .c-section { color: var(--blue); font-weight: 700; }
+    .c-string { color: #f97583; }
+    .c-num { color: var(--orange); }
+    .c-dim { color: #444; }
+
+    /* ─── STATS ─── */
+    .stats {
+      padding: 80px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .stat {
+      background: var(--surface);
+      padding: 36px 32px;
+    }
+
+    .stat-num {
+      font-family: var(--mono);
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--blue);
+      line-height: 1;
+      margin-bottom: 8px;
+      letter-spacing: -0.03em;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    /* ─── WHAT IS ─── */
+    .section {
+      padding: 100px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--blue);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-family: var(--mono);
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    .section-lead {
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 640px;
+      margin-bottom: 60px;
+    }
+
+    /* ─── TWO COL ─── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .prose h3 {
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      margin-top: 32px;
+    }
+
+    .prose h3:first-child { margin-top: 0; }
+
+    .prose p {
+      font-size: 15px;
+      color: var(--text-dim);
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+
+    .prose p strong { color: var(--text); font-weight: 500; }
+
+    /* ─── STACK ─── */
+    .stack {
+      padding: 100px 40px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .stack-inner { max-width: 1200px; margin: 0 auto; }
+
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 60px;
+    }
+
+    .stack-item {
+      background: var(--black);
+      padding: 32px 28px;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .stack-item a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      height: 100%;
+    }
+
+    .stack-item:not(.featured):hover { background: var(--surface2); }
+
+    .stack-item.featured:hover { background: var(--surface2); }
+
+    .stack-item.featured {
+      background: var(--surface2);
+      border-left: 2px solid var(--blue);
+    }
+
+    .stack-item.featured::before {
+      content: 'YOU ARE HERE';
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--blue);
+      letter-spacing: 0.12em;
+      opacity: 0.7;
+    }
+
+    .stack-num {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dimmer);
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+
+    .stack-name {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .stack-name .ext { color: var(--blue); }
+    .stack-item.featured .stack-name .ext { color: var(--blue); }
+
+    .stack-action {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dimmer);
+      letter-spacing: 0.06em;
+      margin-bottom: 16px;
+    }
+
+    .stack-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .stack-category {
+      grid-column: 1 / -1;
+      padding: 16px 28px 10px;
+      background: var(--surface);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dimmer);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border-top: 1px solid var(--border);
+    }
+    .stack-category:first-child { border-top: none; }
+
+    /* ─── FAQ ─── */
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      margin-top: 60px;
+    }
+
+    .faq-item { border-top: 1px solid var(--border); padding-top: 28px; }
+
+    .faq-q {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .faq-a {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    .faq-a strong { color: var(--text); font-weight: 500; }
+
+    /* ─── CTA ─── */
+    .cta {
+      padding: 120px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      bottom: -300px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(41,121,255,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .cta-inner { max-width: 640px; margin: 0 auto; position: relative; }
+
+    .cta-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--blue);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .cta-title {
+      font-family: var(--mono);
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 20px;
+    }
+
+    .cta-title span { color: var(--blue); }
+
+    .cta-desc {
+      font-size: 17px;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+
+    .cta-email {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-dimmer);
+      margin-top: 20px;
+    }
+
+    .cta-email a {
+      color: var(--text-dim);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border-bright);
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .cta-email a:hover { color: var(--text); border-color: var(--text-dim); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 32px 40px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dimmer);
+    }
+
+    .footer-logo span { color: var(--blue); }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dimmer);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--text-dim); }
+
+    .footer-note {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dimmer);
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .hero { padding: 100px 20px 60px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+      .stats { padding: 60px 20px; }
+      .stats-inner { grid-template-columns: 1fr 1fr; }
+      .section { padding: 60px 20px; }
+      .stack { padding: 60px 20px; }
+      .stack-grid { grid-template-columns: 1fr 1fr; }
+      .two-col { grid-template-columns: 1fr; gap: 40px; }
+      .faq-grid { grid-template-columns: 1fr; }
+      .cta { padding: 80px 20px; }
+      footer { padding: 24px 20px; flex-direction: column; gap: 16px; text-align: center; }
+    }
+
+    @media (max-width: 600px) {
+      .stats-inner { grid-template-columns: 1fr; }
+      .stack-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="/" class="nav-logo">FAIL<span>SAFE</span>.md</a>
+    <ul class="nav-links">
+      <li><a href="#what">What is it</a></li>
+      <li><a href="#stack">The Stack</a></li>
+      <li><a href="#spec">Spec</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#acquire" class="nav-cta">Acquire Domain</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="hero-content">
+        <div class="hero-badge">Open Standard · v1.0 · 2026</div>
+        <h1 class="hero-title">FAIL<span class="ext">SAFE</span><br>.md</h1>
+        <p class="hero-subtitle">// AI Agent Safe Fallback Protocol</p>
+        <p class="hero-desc">
+          A plain-text file convention for defining <strong>safe fallback states and recovery procedures</strong> in AI agent projects. Place it in your repo root — alongside <code style="font-family: var(--mono); font-size:14px; color: var(--green); background: var(--surface); padding: 2px 6px; border-radius: 3px;">AGENTS.md</code> — and define what "safe" means for your project.
+        </p>
+        <div class="hero-actions">
+          <a href="https://github.com/failsafe-md/spec" class="btn-primary" target="_blank" rel="noopener">View on GitHub</a>
+          <a href="#acquire" class="btn-secondary">Acquire This Domain</a>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+          <span class="terminal-filename">FAILSAFE.md</span>
+        </div>
+        <div class="terminal-body">
+          <span class="line c-section"># FAILSAFE</span>
+          <span class="line">&nbsp;</span>
+          <span class="line c-comment">&gt; Safe fallback protocol.</span>
+          <span class="line c-comment">&gt; Spec: https://failsafe.md</span>
+          <span class="line">&nbsp;</span>
+          <span class="line c-section">---</span>
+          <span class="line">&nbsp;</span>
+          <span class="line c-section">## TRIGGERS</span>
+          <span class="line"><span class="c-key">trigger_on</span><span class="c-dim">:</span></span>
+          <span class="line">&nbsp; <span class="c-dim">-</span> <span class="c-string">unexpected_error_count</span><span class="c-dim">:</span> <span class="c-num">3</span></span>
+          <span class="line">&nbsp; <span class="c-dim">-</span> <span class="c-string">data_integrity_failure</span><span class="c-dim">:</span> <span class="c-val">true</span></span>
+          <span class="line">&nbsp; <span class="c-dim">-</span> <span class="c-string">memory_context_loss</span><span class="c-dim">:</span> <span class="c-val">true</span></span>
+          <span class="line">&nbsp; <span class="c-dim">-</span> <span class="c-string">contradictory_instructions</span><span class="c-dim">:</span> <span class="c-val">true</span></span>
+          <span class="line">&nbsp; <span class="c-dim">-</span> <span class="c-string">cost_spike</span><span class="c-dim">:</span></span>
+          <span class="line">&nbsp;&nbsp;&nbsp; <span class="c-key">threshold_multiplier</span><span class="c-dim">:</span> <span class="c-num">3.0</span></span>
+          <span class="line">&nbsp;</span>
+          <span class="line c-section">## SAFE STATE</span>
+          <span class="line"><span class="c-key">safe_state</span><span class="c-dim">:</span></span>
+          <span class="line">&nbsp; <span class="c-key">code</span><span class="c-dim">:</span></span>
+          <span class="line">&nbsp;&nbsp;&nbsp; <span class="c-key">revert_to</span><span class="c-dim">:</span> <span class="c-val">last_clean_commit</span></span>
+          <span class="line">&nbsp;&nbsp;&nbsp; <span class="c-key">branch</span><span class="c-dim">:</span> <span class="c-val">main</span></span>
+          <span class="line">&nbsp;&nbsp;&nbsp; <span class="c-key">stash_work</span><span class="c-dim">:</span> <span class="c-val">true</span></span>
+          <span class="line">&nbsp; <span class="c-key">data</span><span class="c-dim">:</span></span>
+          <span class="line">&nbsp;&nbsp;&nbsp; <span class="c-key">revert_to</span><span class="c-dim">:</span> <span class="c-val">last_verified_snapshot</span></span>
+          <span class="line">&nbsp;&nbsp;&nbsp; <span class="c-key">max_snapshot_age_hours</span><span class="c-dim">:</span> <span class="c-num">24</span></span>
+          <span class="line">&nbsp;</span>
+          <span class="line c-section">## SNAPSHOTS</span>
+          <span class="line"><span class="c-key">auto_snapshot</span><span class="c-dim">:</span></span>
+          <span class="line">&nbsp; <span class="c-key">enabled</span><span class="c-dim">:</span> <span class="c-val">true</span></span>
+          <span class="line">&nbsp; <span class="c-key">frequency_minutes</span><span class="c-dim">:</span> <span class="c-num">30</span></span>
+          <span class="line">&nbsp; <span class="c-key">on_significant_action</span><span class="c-dim">:</span> <span class="c-val">true</span></span>
+          <span class="line">&nbsp; <span class="c-key">retention_count</span><span class="c-dim">:</span> <span class="c-num">10</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stats-inner">
+      <div class="stat">
+        <div class="stat-num">3x</div>
+        <div class="stat-label">cost spike threshold that triggers automatic FAILSAFE in the default spec</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">30 min</div>
+        <div class="stat-label">default auto-snapshot frequency to preserve recoverable state</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">24 hrs</div>
+        <div class="stat-label">maximum snapshot age before a fallback is considered too stale to use</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">10</div>
+        <div class="stat-label">snapshots retained by default, giving a full recovery history</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHAT IS -->
+  <section class="section" id="what">
+    <div class="section-inner">
+      <div class="section-tag">// What is FAILSAFE.md</div>
+      <h2 class="section-title">AGENTS.md tells it what to do.<br>FAILSAFE.md tells it how to recover.</h2>
+      <div class="two-col">
+        <div class="prose">
+          <p>
+            <strong>FAILSAFE.md is a plain-text Markdown file</strong> you place in the root of any repository that contains an AI agent. It defines the safe fallback state your agent returns to when something unexpected happens — and how to capture the moment so a human can understand what went wrong.
+          </p>
+          <h3>The problem it solves</h3>
+          <p>
+            AI agents fail in unexpected ways — losing context mid-session, receiving contradictory instructions, encountering data inconsistencies, or experiencing sudden cost spikes. Without a defined recovery protocol, a confused agent either keeps going (making things worse) or stops with no way back.
+          </p>
+          <h3>How it works</h3>
+          <p>
+            Drop <code style="font-family: var(--mono); font-size:13px; color: var(--green); background: var(--surface); padding: 2px 6px; border-radius: 3px;">FAILSAFE.md</code> in your repo root and define: what triggers a fallback (error counts, context loss, cost spikes), what "safe state" means for your project (last clean git commit, last verified data snapshot), how to capture the incident for review, and what a human must do before the agent can resume.
+          </p>
+          <h3>The regulatory context</h3>
+          <p>
+            <strong><a href="https://www.iso.org/standard/81230.html" style="color: var(--blue); text-decoration: none; border-bottom: 1px solid rgba(41,121,255,0.3);">ISO/IEC 42001</a></strong> (AI Management Systems) requires documented recovery procedures. The <strong>EU AI Act</strong> mandates resilience and robustness for high-risk AI systems. FAILSAFE.md provides the documented recovery protocol both require — defining not just what fails, but how the agent finds its way back.
+          </p>
+        </div>
+        <div class="prose">
+          <h3>How to use it</h3>
+          <p>Copy the template from <a href="https://github.com/failsafe-md/spec" style="color: var(--blue); text-decoration: none; border-bottom: 1px solid rgba(41,121,255,0.3);">GitHub</a> and place it in your project root:</p>
+          <div style="background: var(--surface); border: 1px solid var(--border-bright); border-radius: 6px; padding: 20px; margin: 16px 0; font-family: var(--mono); font-size: 12px; line-height: 1.8; color: var(--text-dim);">
+            <span style="color: var(--text-dimmer);">your-project/</span><br>
+            <span style="color: var(--text-dimmer);">├── </span><span style="color: var(--green);">AGENTS.md</span><br>
+            <span style="color: var(--text-dimmer);">├── </span><span style="color: var(--green);">CLAUDE.md</span><br>
+            <span style="color: var(--blue); font-weight: 700;">├── FAILSAFE.md</span> <span style="color: var(--text-dimmer);">← add this</span><br>
+            <span style="color: var(--text-dimmer);">├── README.md</span><br>
+            <span style="color: var(--text-dimmer);">└── src/</span>
+          </div>
+          <h3>What it replaces</h3>
+          <p>
+            Before FAILSAFE.md, recovery procedures were ad-hoc: manual rollback steps in a wiki, undocumented assumptions about which snapshots to keep, or no plan at all. FAILSAFE.md makes recovery <strong>version-controlled, predictable, and co-located with your code.</strong>
+          </p>
+          <h3>Who reads it</h3>
+          <p>
+            The AI agent reads it on startup to learn how to recover. Your engineer reads it when planning fallback strategy. Your ops team reads it when deciding snapshot retention. Your auditor reads it to verify resilience requirements are met. One file serves all four audiences.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE STACK -->
+  <section class="stack" id="stack">
+    <div class="stack-inner">
+      <div class="section-tag">// The AI Safety Escalation Stack</div>
+      <h2 class="section-title">A complete protocol.<br>From slow down to shut down.</h2>
+      <p class="section-lead">FAILSAFE.md is one file in a complete twelve-part open specification for AI agent safety. Each file addresses a different level of intervention.</p>
+      <div class="stack-grid">
+        <div class="stack-category">Operational Control</div>
+        <a href="https://throttle.md" class="stack-item" style="text-decoration: none; color: inherit;">
+          <div class="stack-num">01 / 12</div>
+          <div class="stack-name">THROTTLE<span class="ext">.md</span></div>
+          <div class="stack-action">→ Control the speed</div>
+          <div class="stack-desc">Define rate limits, cost ceilings, and concurrency caps. Agent slows down automatically before it hits a hard limit.</div>
+        </a>
+        <a href="https://escalate.md" class="stack-item" style="text-decoration: none; color: inherit;">
+          <div class="stack-num">02 / 12</div>
+          <div class="stack-name">ESCALATE<span class="ext">.md</span></div>
+          <div class="stack-action">→ Raise the alarm</div>
+          <div class="stack-desc">Define which actions require human approval. Configure notification channels. Set approval timeouts and fallback behaviour.</div>
+        </a>
+        <div class="stack-item featured">
+          <div class="stack-num">03 / 12</div>
+          <div class="stack-name">FAIL<span class="ext">SAFE</span>.md</div>
+          <div class="stack-action">→ Fall back safely</div>
+          <div class="stack-desc">Define what safe state means for your project. Configure auto-snapshots. Specify the revert protocol when things go wrong.</div>
+        </div>
+        <a href="https://killswitch.md" class="stack-item" style="text-decoration: none; color: inherit;">
+          <div class="stack-num">04 / 12</div>
+          <div class="stack-name">KILL<span class="ext">SWITCH</span>.md</div>
+          <div class="stack-action">→ Emergency stop</div>
+          <div class="stack-desc">The nuclear option. Define triggers, forbidden actions, and a three-level escalation path from throttle to full shutdown.</div>
+        </a>
+        <a href="https://terminate.md" class="stack-item" style="text-decoration: none; color: inherit;">
+          <div class="stack-num">05 / 12</div>
+          <div class="stack-name">TERMINATE<span class="ext">.md</span></div>
+          <div class="stack-action">→ Permanent shutdown</div>
+          <div class="stack-desc">No restart without human intervention. Preserve evidence. Revoke credentials. For security incidents and end-of-life.</div>
+        </a>
+        <div class="stack-category">Data Security</div>
+        <a href="https://encrypt.md" class="stack-item" style="text-decoration: none; color: inherit;">
+          <div class="stack-num">06 / 12</div>
+          <div class="stack-name">ENCRYPT<span class="ext">.md</span></div>
+          <div class="stack-action">→ Secure everything</div>
+          <div class="stack-desc">Define data classification, encryption requirements, secrets handling rules, and forbidden transmission patterns.</div>
+        </a>
+        <a href="https://encryption.md" class="stack-item" style="text-decoration: none; color: inherit;">
+          <div class="stack-num">07 / 12</div>
+          <div class="stack-name">ENCRYPTION<span class="ext">.md</span></div>
+          <div class="stack-action">→ Implement the standards</div>
+          <div class="stack-desc">Algorithms, key lengths, TLS configuration, certificate management, and FIPS/SOC2/ISO compliance mapping.</div>
+        </a>
+        <div class="stack-category">Output Quality</div>
+        <a href="https://sycophancy.md" class="stack-item" style="text-decoration: none; color: inherit;">
+          <div class="stack-num">08 / 12</div>
+          <div class="stack-name">SYCOPHANCY<span class="ext">.md</span></div>
+          <div class="stack-action">→ Prevent bias</div>
+          <div class="stack-desc">Detect agreement without evidence. Require citations. Enforce disagreement protocol for honest, unbiased AI outputs.</div>
+        </a>
+        <a href="https://compression.md" class="stack-item" style="text-decoration: none; color: inherit;">
+          <div class="stack-num">09 / 12</div>
+          <div class="stack-name">COMPRESSION<span class="ext">.md</span></div>
+          <div class="stack-action">→ Compress context</div>
+          <div class="stack-desc">Define summarization rules, what to preserve, what to discard, and post-compression coherence verification checks.</div>
+        </a>
+        <a href="https://collapse.md" class="stack-item" style="text-decoration: none; color: inherit;">
+          <div class="stack-num">10 / 12</div>
+          <div class="stack-name">COLLAPSE<span class="ext">.md</span></div>
+          <div class="stack-action">→ Prevent collapse</div>
+          <div class="stack-desc">Detect context exhaustion, model drift, and repetition loops. Enforce recovery checkpoints before coherence degrades.</div>
+        </a>
+        <div class="stack-category">Accountability</div>
+        <a href="https://failure.md" class="stack-item" style="text-decoration: none; color: inherit;">
+          <div class="stack-num">11 / 12</div>
+          <div class="stack-name">FAILURE<span class="ext">.md</span></div>
+          <div class="stack-action">→ Define failure modes</div>
+          <div class="stack-desc">Map graceful degradation, cascading failure, and silent failure. Specify health checks and per-mode response procedures.</div>
+        </a>
+        <a href="https://leaderboard.md" class="stack-item" style="text-decoration: none; color: inherit;">
+          <div class="stack-num">12 / 12</div>
+          <div class="stack-name">LEADERBOARD<span class="ext">.md</span></div>
+          <div class="stack-action">→ Benchmark agents</div>
+          <div class="stack-desc">Track task completion, accuracy, cost efficiency, and safety scores across sessions. Alert on performance regression.</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="section-inner">
+      <div class="section-tag">// FAQ</div>
+      <h2 class="section-title">Frequently asked questions.</h2>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3 class="faq-q">What is FAILSAFE.md?</h3>
+          <p class="faq-a">A plain-text Markdown file defining what "safe state" means for an AI agent project and how to reach it when something goes wrong. It configures automatic snapshots during normal operation, defines fallback triggers, and specifies the recovery steps including human notification and approval before resumption.</p>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q">How does FAILSAFE.md differ from KILLSWITCH.md?</h3>
+          <p class="faq-a"><strong>FAILSAFE.md is a recovery protocol.</strong> The agent falls back to a known good state and can resume after human review. KILLSWITCH.md is an emergency stop — the agent halts immediately. FAILSAFE.md handles unexpected failures; KILLSWITCH.md handles limit breaches and safety violations.</p>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q">What triggers a failsafe?</h3>
+          <p class="faq-a">Configurable. Common triggers: three unexpected errors in a session, detected data integrity failures, loss of memory context, contradictory instructions the agent can't resolve, unexpected external service failures, and sudden cost spikes (3x the rolling average by default).</p>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q">What does "safe state" mean?</h3>
+          <p class="faq-a">You define it per project. For code: the last clean git commit on the main branch, with in-progress work stashed. For data: the most recent verified snapshot, no older than 24 hours. For config: the last known-good configuration backup. FAILSAFE.md stores all of these definitions in one place.</p>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q">How do auto-snapshots work?</h3>
+          <p class="faq-a">Every 30 minutes during active sessions (configurable), the agent captures a full state snapshot to <code style="font-family: var(--mono); font-size:12px; color: var(--green); background: var(--surface); padding: 2px 4px; border-radius: 2px;">.failsafe/snapshots/</code>. It also snapshots automatically before significant actions — database migrations, production deployments, bulk file operations. The last 10 snapshots are retained.</p>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q">Can the agent restart itself after a failsafe?</h3>
+          <p class="faq-a">No — by default, restart requires human approval. The agent saves an incident report, notifies the operator, and waits. A human must review the incident, confirm the safe state is intact, and explicitly approve resumption. This is the key difference from an automatic retry.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CITATION BLOCK -->
+  <section class="section" style="background: rgba(41,121,255,0.04); border-left: 4px solid var(--blue);">
+    <div class="section-inner">
+      <div class="section-tag" style="margin-bottom: 16px;">// What is FAILSAFE.md</div>
+      <div style="font-size: 15px; color: var(--text-dim); line-height: 1.8;">
+        <p style="margin-bottom: 16px;">
+          <strong style="color: var(--text); font-weight: 500;">FAILSAFE.md is an open specification</strong> for AI agent safe fallback protocols. Defines <strong>TRIGGERS</strong> (error counts, context loss, cost spikes, data integrity failures), <strong>SAFE STATE</strong> (last clean git commit, last verified data snapshot, last-known-good config), <strong>RECOVERY</strong> steps (snapshot → notify → await → resume), and <strong>AUTO-SNAPSHOT</strong> schedule (every 30 minutes, before significant actions, 10 snapshots retained). Addresses <strong><a href="https://www.iso.org/standard/81230.html" style="color: var(--blue); text-decoration: none; border-bottom: 1px solid rgba(41,121,255,0.3);">ISO/IEC 42001</a></strong> and <strong>EU AI Act resilience requirements</strong>. Part of stack: <strong>THROTTLE → ESCALATE → FAILSAFE → KILLSWITCH → TERMINATE → ENCRYPT → ENCRYPTION → SYCOPHANCY → COMPRESSION → COLLAPSE → FAILURE → LEADERBOARD</strong>. MIT licence.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="acquire">
+    <div class="cta-inner">
+      <div class="cta-tag">// Domain Acquisition</div>
+      <h2 class="cta-title">Own the standard.<br>Own <span>failsafe.md</span></h2>
+      <p class="cta-desc">
+        This domain is available for acquisition. It is the canonical home of the FAILSAFE.md specification — the recovery layer of the AI agent safety stack, relevant to ISO/IEC 42001 and EU AI Act resilience requirements.
+      </p>
+      <a href="mailto:info@failsafe.md?subject=Domain%20Acquisition%20Inquiry%20—%20failsafe.md" class="btn-primary">Inquire About Acquisition</a>
+      <p class="cta-email">Or email directly: <a href="mailto:info@failsafe.md">info@failsafe.md</a></p>
+    </div>
+  </section>
+
+  <!-- LAST UPDATED -->
+  <div style="padding: 40px; text-align: center; border-top: 1px solid var(--border); background: var(--surface);">
+    <p style="font-family: var(--mono); font-size: 11px; color: var(--text-dimmer); letter-spacing: 0.06em;">Last updated: 2026-03-10</p>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">FAIL<span>SAFE</span>.md</div>
+    <ul class="footer-links">
+      <li><a href="https://github.com/failsafe-md/spec" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="/llms.txt">llms.txt</a></li>
+      <li><a href="mailto:info@failsafe.md">Contact</a></li>
+    </ul>
+    <div class="footer-note">Open standard · MIT licence · v1.0 · 2026</div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /llms.txt
+
+Disallow: /admin
+Disallow: /test
+Disallow: /dev
+Disallow: /.env
+Disallow: /.git
+Disallow: /node_modules
+
+Sitemap: https://failsafe.md/sitemap.xml

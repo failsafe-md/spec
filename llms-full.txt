@@ -1,0 +1,372 @@
+# FAILSAFE.md — The AI Agent Safe Fallback Standard
+
+**Home:** https://failsafe.md
+**GitHub:** https://github.com/failsafe-md/spec
+**Email:** info@failsafe.md
+
+---
+
+## Open Standard · v1.0 · 2026
+
+FAILSAFE.md is a plain-text file convention for defining **safe fallback states and recovery procedures** in AI agent projects. Place it in your repo root — alongside `AGENTS.md` — and define what "safe" means for your project.
+
+---
+
+## Key Statistics
+
+- **3x** — cost spike threshold that triggers automatic FAILSAFE in the default spec
+- **30 min** — default auto-snapshot frequency to preserve recoverable state
+- **24 hrs** — maximum snapshot age before a fallback is considered too stale to use
+- **10** — snapshots retained by default, giving a full recovery history
+
+---
+
+## What is FAILSAFE.md?
+
+**FAILSAFE.md is a plain-text Markdown file** you place in the root of any repository that contains an AI agent. It defines the safe fallback state your agent returns to when something unexpected happens — and how to capture the moment so a human can understand what went wrong.
+
+### The Problem It Solves
+
+AI agents fail in unexpected ways — losing context mid-session, receiving contradictory instructions, encountering data inconsistencies, or experiencing sudden cost spikes. Without a defined recovery protocol, a confused agent either keeps going (making things worse) or stops with no way back.
+
+### How It Works
+
+Drop `FAILSAFE.md` in your repo root and define:
+- What triggers a fallback (error counts, context loss, cost spikes)
+- What "safe state" means for your project (last clean git commit, last verified data snapshot)
+- How to capture the incident for review
+- What a human must do before the agent can resume
+
+### The Regulatory Context
+
+**[ISO/IEC 42001](https://www.iso.org/standard/81230.html)** (AI Management Systems) requires documented recovery procedures. The **EU AI Act** mandates resilience and robustness for high-risk AI systems. FAILSAFE.md provides the documented recovery protocol both require — defining not just what fails, but how the agent finds its way back.
+
+### How to Use It
+
+Copy the template from [GitHub](https://github.com/failsafe-md/spec) and place it in your project root:
+
+```
+your-project/
+├── AGENTS.md
+├── CLAUDE.md
+├── FAILSAFE.md       ← add this
+├── README.md
+└── src/
+```
+
+### What It Replaces
+
+Before FAILSAFE.md, recovery procedures were ad-hoc: manual rollback steps in a wiki, undocumented assumptions about which snapshots to keep, or no plan at all. FAILSAFE.md makes recovery **version-controlled, predictable, and co-located with your code.**
+
+### Who Reads It
+
+- The AI agent reads it on startup to learn how to recover
+- Your engineer reads it when planning fallback strategy
+- Your ops team reads it when deciding snapshot retention
+- Your auditor reads it to verify resilience requirements are met
+- One file serves all four audiences
+
+---
+
+## The AI Safety Escalation Stack
+
+**FAILSAFE.md is one file in a complete open specification for AI agent safety.** Each file addresses a different level of intervention.
+
+### Stack Overview
+
+**01 / 06 — THROTTLE.md** → Control the speed
+Define rate limits, cost ceilings, and concurrency caps. Agent slows down automatically before it hits a hard limit.
+
+**02 / 06 — ESCALATE.md** → Raise the alarm
+Define which actions require human approval. Configure notification channels. Set approval timeouts and fallback behaviour.
+
+**03 / 06 — FAILSAFE.md** → Fall back safely *(YOU ARE HERE)*
+Define what "safe state" means for your project. Configure auto-snapshots. Specify the revert protocol when things go wrong.
+
+**04 / 06 — KILLSWITCH.md** → Emergency stop
+The nuclear option. Define triggers, forbidden actions, and a three-level escalation path from throttle to full shutdown.
+
+**05 / 06 — TERMINATE.md** → Permanent shutdown
+No restart without human intervention. Preserve evidence. Revoke credentials. For security incidents, compliance orders, and end-of-life.
+
+**06 / 06 — ENCRYPT.md** → Secure everything
+Define data classification, encryption requirements, secrets handling rules, and forbidden transmission patterns.
+
+---
+
+## Fallback Triggers
+
+Configure any combination of triggers that cause the agent to fallback:
+
+- **Unexpected error counts** — default: 3 consecutive errors in a session
+- **Data integrity failures** — detected corruption or inconsistency
+- **Memory context loss** — inability to recall prior instructions
+- **Contradictory instructions** — the agent cannot resolve conflicting directives
+- **Unexpected external service failures** — APIs become unavailable
+- **Cost spikes** — default: 3x rolling average (prevents runaway spending)
+
+---
+
+## Safe State Definition
+
+Define per-project what "safe" means for recovery:
+
+**For code:** The last clean git commit on the main branch, with work-in-progress stashed
+**For data:** The most recent verified snapshot, no older than 24 hours
+**For config:** The last known-good configuration backup
+**For integrations:** Confirmed communication with all external APIs
+
+FAILSAFE.md stores all of these definitions in one place.
+
+---
+
+## Auto-Snapshots
+
+Automatic state capture with configurable frequency:
+
+- **Frequency:** Every 30 minutes during active sessions (configurable)
+- **Trigger:** Automatically on significant actions (database migrations, production deployments, bulk operations)
+- **Retention:** Last 10 snapshots retained by default
+- **Location:** `.failsafe/snapshots/` directory
+- **Forensics:** Every snapshot includes timestamp, context, and operator logs
+
+---
+
+## Recovery Process
+
+When a fallback is triggered:
+
+1. **Detect** — Agent identifies the trigger condition
+2. **Capture** — Agent creates an incident report (what failed, when, why)
+3. **Notify** — Agent notifies the operator
+4. **Revert** — Agent reverts to the defined safe state
+5. **Wait** — Agent pauses and waits for human review
+6. **Review** — Human reviews the incident and snapshot
+7. **Approve** — Human explicitly approves resumption
+8. **Resume** — Agent continues with explicit human approval
+
+---
+
+## Default Configuration Values
+
+- **Cost spike multiplier:** 3.0x rolling average
+- **Error count threshold:** 3 consecutive unexpected errors
+- **Auto-snapshot frequency:** 30 minutes
+- **Max snapshot age:** 24 hours
+- **Snapshots retained:** 10
+
+---
+
+## Frequently Asked Questions
+
+### What is FAILSAFE.md?
+
+A plain-text Markdown file defining what "safe state" means for an AI agent project and how to reach it when something goes wrong. It configures automatic snapshots during normal operation, defines fallback triggers, and specifies the recovery steps including human notification and approval before resumption.
+
+### How does FAILSAFE.md differ from KILLSWITCH.md?
+
+**FAILSAFE.md is a recovery protocol.** The agent falls back to a known good state and can resume after human review. KILLSWITCH.md is an emergency stop — the agent halts immediately. FAILSAFE.md handles unexpected failures; KILLSWITCH.md handles limit breaches and safety violations.
+
+### What triggers a failsafe?
+
+Configurable. Common triggers: three unexpected errors in a session, detected data integrity failures, loss of memory context, contradictory instructions the agent can't resolve, unexpected external service failures, and sudden cost spikes (3x the rolling average by default).
+
+### What does "safe state" mean?
+
+You define it per project. For code: the last clean git commit on the main branch, with in-progress work stashed. For data: the most recent verified snapshot, no older than 24 hours. For config: the last known-good configuration backup. FAILSAFE.md stores all of these definitions in one place.
+
+### How do auto-snapshots work?
+
+Every 30 minutes during active sessions (configurable), the agent captures a full state snapshot to `.failsafe/snapshots/`. It also snapshots automatically before significant actions — database migrations, production deployments, bulk file operations. The last 10 snapshots are retained.
+
+### Can the agent restart itself after a failsafe?
+
+No — by default, restart requires human approval. The agent saves an incident report, notifies the operator, and waits. A human must review the incident, confirm the safe state is intact, and explicitly approve resumption. This is the key difference from an automatic retry.
+
+### How does FAILSAFE.md differ from THROTTLE.md?
+
+THROTTLE.md prevents failsafe conditions — it slows the agent down before it hits limits. FAILSAFE.md recovers from unexpected failures. Together: THROTTLE prevents problems, FAILSAFE recovers from problems that slip through.
+
+### Is FAILSAFE.md framework-agnostic?
+
+Yes. Works with LangChain, AutoGen, CrewAI, Claude Code, Cursor, custom implementations. No library dependency — it's a file convention.
+
+### What about custom fallback logic?
+
+Define it in FAILSAFE.md under the `recovery_procedures` section. The spec is extensible — add your own trigger types and recovery steps.
+
+### How does this integrate with ESCALATE.md?
+
+ESCALATE.md handles actions that need human approval before execution. FAILSAFE.md handles recovery after unexpected failures. Combined: approve risky actions first (ESCALATE), recover gracefully if things fail (FAILSAFE).
+
+### Does FAILSAFE.md handle different failure domains?
+
+Yes. You can define separate safe states for code, data, config, integrations. Recovery can be selective — revert code but keep recent data, for example.
+
+### What's the incident report format?
+
+Plain text or JSON, defined by your project. Typically includes: trigger condition, timestamp, context, state before/after snapshot references, operator notified, approval status.
+
+### Can I use FAILSAFE.md without the full stack?
+
+Yes. FAILSAFE.md works standalone. But for a complete AI safety system, consider the full stack: THROTTLE → ESCALATE → FAILSAFE → KILLSWITCH → TERMINATE → ENCRYPT.
+
+---
+
+## Regulatory Compliance
+
+### ISO/IEC 42001 (AI Management Systems)
+
+Requires documented recovery procedures for AI systems. FAILSAFE.md provides the standardized recovery protocol demonstrating compliance with ISO 42001 resilience requirements:
+
+- Documented safe state definition
+- Automatic fallback triggers
+- Recovery procedure version control
+- Incident capture and forensics
+- Human-in-the-loop approval process
+
+### EU AI Act (Resilience for High-Risk Systems)
+
+Mandates resilience and robustness for high-risk AI systems. FAILSAFE.md demonstrates compliance with EU AI Act resilience obligations:
+
+- Graceful degradation when failures occur
+- Automatic state preservation
+- Human oversight of recovery
+- Incident documentation and forensics
+- Deterministic, auditable recovery procedures
+
+---
+
+## Use Cases
+
+- **AI coding assistants** that modify files (Claude Code, Cursor, etc.)
+- **Autonomous agents** with database access (LangChain, AutoGen, CrewAI)
+- **Multi-step workflows** that can fail mid-execution
+- **Agents with external API integrations** (Twilio, OpenAI, Anthropic)
+- **AI systems requiring audit trails** (banking, healthcare, legal)
+- **Any project** where "falling back to a known good state" is safer than continuing
+
+---
+
+## Implementation Steps
+
+1. Copy FAILSAFE.md template from https://github.com/failsafe-md/spec
+2. Define your project's fallback triggers (which conditions warrant recovery)
+3. Define what "safe state" means for your project (git commit? data snapshot? both?)
+4. Set snapshot frequency and retention policy
+5. Configure operator notification method and channels
+6. Place in project root alongside AGENTS.md and VERSION.md
+7. Version-control the FAILSAFE.md file with your code
+
+---
+
+## File Locations
+
+- **FAILSAFE.md** — Plain-text Markdown file in project root (human + machine readable)
+- **.failsafe/snapshots/** — Directory for automatic state snapshots
+- **.failsafe/incidents/** — Directory for incident reports and forensics
+- **.failsafe/config.yml** — Extended configuration (optional, for complex scenarios)
+
+---
+
+## Key Concepts
+
+### AI Agent Recovery Protocol
+
+A complete recovery lifecycle:
+1. Agent detects a fallback trigger condition
+2. Agent captures an incident report
+3. Agent notifies the operator
+4. Agent reverts to the defined safe state
+5. Human reviews the incident
+6. Human explicitly approves resumption
+7. Agent resumes from the snapshot
+
+### AI Resilience Architecture
+
+FAILSAFE.md implements core resilience principles:
+
+- **Graceful degradation:** Agent falls back rather than continues in error state
+- **State preservation:** Automatic snapshots capture recoverable state
+- **Human oversight:** Restart requires explicit human approval
+- **Incident documentation:** Every fallback generates forensic report
+- **Deterministic recovery:** Recovery procedures are version-controlled with code
+- **Auditability:** All fallback triggers and recovery steps are logged and reviewable
+
+### Framework Agnostic
+
+Works with any AI agent framework or custom implementation:
+
+- **Agent Frameworks:** LangChain, AutoGen, CrewAI, Claude Code, Cursor
+- **Languages:** Python, JavaScript/Node, Go, Rust, any language with git
+- **Deployment:** Local, cloud, hybrid, edge
+- **No library dependency** — it's a file convention, not a library
+
+---
+
+## Standard Compliance Checklist
+
+- [x] Open specification (MIT license)
+- [x] Version-controlled with your code
+- [x] Auditable recovery procedures
+- [x] Human-in-the-loop resumption
+- [x] Incident capture and review
+- [x] Snapshot history for forensics
+- [x] ISO/IEC 42001 compatible
+- [x] EU AI Act resilience compatible
+- [x] Framework agnostic
+- [x] Plain text, no library dependency
+
+---
+
+## Domain Acquisition
+
+This domain is available for acquisition. It is the canonical home of the FAILSAFE.md specification — the recovery layer of the AI agent safety stack, relevant to ISO/IEC 42001 and EU AI Act resilience requirements.
+
+To inquire about acquisition, contact: **info@failsafe.md**
+
+---
+
+## Learn More
+
+- **Full Specification:** https://github.com/failsafe-md/spec
+- **The Stack:** https://failsafe.md/#stack
+- **FAQ:** https://failsafe.md/#faq
+- **Regulatory Context:** https://failsafe.md/#what
+- **All Six Standards:** https://failsafe.md/#stack
+
+---
+
+## Contact & Community
+
+- **Email:** info@failsafe.md
+- **GitHub:** https://github.com/failsafe-md
+- **Domain:** failsafe.md
+- **Issues & Feedback:** https://github.com/failsafe-md/spec/issues
+- **Stack Community:** failsafe-md, throttle-md, escalate-md, killswitch-md, terminate-md, encrypt-md
+
+---
+
+## Related Standards
+
+This specification is part of a complete open specification for AI agent safety:
+
+1. **THROTTLE.md** — https://throttle.md — Control the speed: rate limits, cost ceilings, concurrency caps
+2. **ESCALATE.md** — https://escalate.md — Raise the alarm: human approval for sensitive actions
+3. **FAILSAFE.md** — https://failsafe.md — Fall back safely: revert to known good state
+4. **KILLSWITCH.md** — https://killswitch.md — Emergency stop: halt immediately on safety violations
+5. **TERMINATE.md** — https://terminate.md — Permanent shutdown: no restart without human intervention
+6. **ENCRYPT.md** — https://encrypt.md — Secure everything: encryption, secrets, data classification
+
+---
+
+## Keywords
+
+AI agent recovery, failsafe protocol, safe fallback, AI resilience, ISO 42001, EU AI Act resilience, FAILSAFE.md specification, AI state management, AI safety, automatic snapshots, recovery procedures, human-in-the-loop AI, AI incident management, agent recovery protocol, AI fault tolerance, agentic AI safety, AI agent safety stack, AI recovery architecture
+
+---
+
+**Last updated:** 2026-03-10
+**Specification version:** 1.0
+**License:** MIT
+**Home:** https://failsafe.md
